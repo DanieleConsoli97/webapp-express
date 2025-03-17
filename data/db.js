@@ -20,7 +20,7 @@ const connection = mysql.createConnection(
 //NOTE - Gestiamo l'avvenuta connessione con eventuali errori di connessione
 connection.connect((err)=>{
     if (err) throw err;
-    console.log('connessione avvenuta con successo al database')
+    console.log(`connessione avvenuta con successo al database ${Name}`)
 })
-//NOTE - esportiamo la connessione
+//NOTE - esportiamo la connection
 export default connection;

@@ -5,6 +5,7 @@ function index(req, res) {
     const sql = 'SELECT * FROM movies'
 
     connection.query(sql, (err, results) => {
+        console.log("richiesta effettuata")
         if (err) {
             return res.status(500).json({
                 error: 'Errore lato server INDEX function'
@@ -14,11 +15,15 @@ function index(req, res) {
     })
 }
 function show(req, res) {
-   const id =parseInt(req.params.id)
-   console.log(id)
-    const sql = 'SELECT * FROM movies WHERE id = ?';
-    
-    connection.query(sql,[id],(err,results)=>{
+    const id = parseInt(req.params.id)
+
+    console.log(`Richiesta effettuata per id:${id}`)
+
+    const MovieSql = 'SELECT * FROM movies WHERE id = ? ';
+
+    const reviewSql = 'SELECT * FROM reviews WHERE movie_id = ? ';
+
+    connection.query(MovieSql, [id], (err, results) => {
         if (err) {
             return res.status(500).json({
                 error: 'Errore lato server Show function'
@@ -26,9 +31,44 @@ function show(req, res) {
         }
         if (results.length === 0)
             return res.status(404).json({
-            error: 'Movies not found',
-        });
-        res.json(results)
-    })
-} 
-export { index, show };
+                error: 'Movies not found',
+            });
+            const movie = results[0];
+        connection.query(reviewSql,[id], (err,reviewsResults) => {
+            if (err) {
+                return res.status(500).json({
+                    error: 'Errore lato server Show function'
+                })
+            }
+           
+                movie.reviews = reviewsResults;
+                 res.json(movie);
+        })
+       
+     }
+    )
+}
+function storeReview(req,res){
+        const {id} = req.params;
+        const {text,name,vote}=req.body;
+        const sql = 'INSERT INTO reviews (text,name,vote,movie_id) VALUES (?,?,?,?)';
+        
+        connection.query(sql,[text,name,vote,id],(err,results)=>{
+        
+            if(err){
+                return res.status(500).json({
+                    error: 'Errore lato server storeReview function'
+                })
+            }
+            res.status(201)
+            res.json({
+                message:'Review created',
+                id:results.insertId,
+                text,
+                name,
+                vote,
+                movie_id:id}
+            )
+        })
+    }
+export { index, show ,storeReview};

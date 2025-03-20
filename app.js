@@ -7,9 +7,10 @@ import 'dotenv/config'; //NOTE - ricordati importa la config del dotenv
 
 const app = express();//NOTE - impostiamo express e la porta del server
 const port =3000;
-
 import moviesRouters from "./routes/moviesRouters.js"
+
 app.use(cors());
+app.use(express.json());
 //Impostaimo il path
 app.use('/movies',moviesRouters) 
 

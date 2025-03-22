@@ -2,16 +2,29 @@ import connection from "../data/db.js";
 
 function index(req, res) {
     //NOTE - impostiamo la query
+ 
     const sql = 'SELECT * FROM movies'
-
     connection.query(sql, (err, results) => {
         console.log("richiesta effettuata")
+        
         if (err) {
             return res.status(500).json({
                 error: 'Errore lato server INDEX function'
             })
         }
-        res.json(results);
+
+        const movies = results.map((movie) => {
+            
+            return {
+                ...movie,
+                //NOTE - creiamo il path completo per l'immagine
+                image: req.imagePath + movie.image
+            }
+        
+        })
+        
+        res.json(movies); 
+        
     })
 }
 function show(req, res) {
@@ -50,10 +63,12 @@ function show(req, res) {
 }
 function storeReview(req,res){
         const {id} = req.params;
-        const {text,name,vote}=req.body;
-        const sql = 'INSERT INTO reviews (text,name,vote,movie_id) VALUES (?,?,?,?)';
+        console.log(req.body)
+        const {name,vote,text} = req.body;
         
-        connection.query(sql,[text,name,vote,id],(err,results)=>{
+        const sql = 'INSERT INTO reviews (name,vote,text,movie_id) VALUES (?,?,?,?)';
+        
+        connection.query(sql,[name,vote,text,id],(err,results) =>{
         
             if(err){
                 return res.status(500).json({
@@ -64,11 +79,9 @@ function storeReview(req,res){
             res.json({
                 message:'Review created',
                 id:results.insertId,
-                text,
-                name,
-                vote,
-                movie_id:id}
+                }
             )
-        })
+        }
+    )
     }
 export { index, show ,storeReview};

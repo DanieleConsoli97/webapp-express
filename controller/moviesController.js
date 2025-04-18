@@ -106,15 +106,22 @@ function storeReview(req, res) {
     )
 }
 
-//SECTION - funzione store
-function store() {
+//SECTION - funzione store movies
+function store(req, res) {
     const { title, director, genre, release_year, abstract } = req.body;
+    
+    if (!req.file) {
+        return res.status(400).json({ error: "Nessun file caricato!" });
+    }
     const image = req.file.filename;
-    const sql = 'INSERT INTO movies (title,director,genre,release_year,abstract,image) VALUES (?,?,?,?,?)';
+    console.log(req.file); // Verifica se è undefined
+    console.log(req.body)
+    const sql = 'INSERT INTO movies (title,director,genre,release_year,abstract,image) VALUES (?,?,?,?,?,?)';
     connection.query(sql, [title, director, genre, release_year, abstract, image], (err, results) => {
         if (err) {
             return res.status(500).json({
                 error: 'Errore lato server store function'
+
             })
         }
         res.status(201)
